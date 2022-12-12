@@ -22,7 +22,28 @@ function TopStories() {
         setError(error.message)
         setIsLoaded(true)
       });
+
     }, []);
+
+  if (error) {
+    return <h1>Error: {error}</h1>;
+  } else if (!isLoaded) {
+    return <h1>...Loading...</h1>;
+  } else {
+    return (
+      <React.Fragment>
+        <h1>Top Stories</h1>
+        <ul>
+          {topStories.map((article, index) =>
+            <li key={index}>
+              <h3>{article.title}</h3>
+              <p>{article.abstract}</p>
+            </li>
+          )}
+        </ul>
+      </React.Fragment>
+    );
+  }
 }
 
 export default TopStories;
