@@ -1,9 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useReducer } from 'react';
+import topStoriesReducer from './../reducers/top-stories-reducer';  //import 'topStoriesReducer'
+import { getTopStoriesSuccess, getTopStoriesFailure } from './../actions/index.js';   //Action creators
+
+const initialState = {
+  error: null, 
+  isLoaded: false, 
+  topStories: []
+}
 
 function TopStories() {
-  const [error, setError] = useState(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [topStories, setTopStories] = useState([]);
+  // const [error, setError] = useState(null);
+  // const [isLoaded, setIsLoaded] = useState(false);
+  // const [topStories, setTopStories] = useState([]);
+  const [state, dispatch] = useReducer(topStoriesReducer, initialState);
 
   useEffect(() => {
     fetch(`https://api.nytimes.com/svc/topstories/v2/home.json?api-key=${process.env.REACT_APP_API_KEY}`)
@@ -14,16 +23,19 @@ function TopStories() {
           return response.json()
         }
       })
-      .then((jsonifiedResponse) => {
-          setTopStories(jsonifiedResponse.results)
-          setIsLoaded(true)
-        })
-      .catch((error) => {
-        setError(error.message)
-        setIsLoaded(true)
+      .then((jsonifiedResponse) => {  //Create an action then dispatch it.
+        const action = getTopStoriesSuccess(jsonifiedResponse.results);
+        dispatch(action);
+      })
+      .catch((error) => {   //Create an action then dispatch it.
+        const action = getTopStoriesFailure(error.message);
+        dispatch(action);
       });
 
     }, []);
+
+  //"We destructure [all slices of] the state variable" (Lsn 6).
+  const { error, isLoaded, topStories } = state;
 
   if (error) {
     return <h1>Error: {error}</h1>;
